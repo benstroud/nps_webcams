@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Park Webcams</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="container mx-auto p-2">
+        <h1 class="text-2xl font-bold mb-2">National Park Service Webcams</h1>
+        <input type="text" id="search" placeholder="Search webcams..." class="mb-2 p-1 w-full bg-gray-800 text-gray-100 rounded">
+        <div id="loading" class="hidden text-center text-gray-400">Loading...</div>
+        {{range $park, $webcams := .groupedWebcams}}
+        <div class="park-container mb-4">
+            <h2 class="text-xl font-bold mb-2">{{$park}}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {{range $webcams}}
+                <div class="webcam bg-gray-800 p-2 rounded-lg shadow-md">
+                    <a href="{{.URL}}" target="_blank" class="inline-block px-2 py-1 bg-blue-500 text-white font-semibold text-center rounded hover:bg-blue-700">View Webcam</a>
+                    <a href="{{(index .RelatedParks 0).URL}}" target="_blank" class="inline-block px-2 py-1 bg-green-500 text-white font-semibold text-center rounded hover:bg-green-700">Visit Park</a>
+                    {{ if .Images }}
+                    <img src="{{(index .Images 0).URL}}" alt="{{.Title}}" class="mb-1 rounded">
+                    {{ else }}
+                    <img src="./static/passports.jpeg" alt="NPS stamps" class="mb-1 rounded h-64">
+                    {{ end }}
+                    <h3 class="text-lg font-semibold">{{.Title}}</h3>
+                    <p class="text-gray-400 text-sm">{{.Description}}</p>
+                </div>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const parks = document.querySelectorAll('.park-container');
+            parks.forEach(park => {
+                const webcams = park.querySelectorAll('.webcam');
+                let hasVisibleWebcam = false;
+                webcams.forEach(webcam => {
+                    const title = webcam.querySelector('h3').textContent.toLowerCase();
+                    const parkName = park.querySelector('h2').textContent.toLowerCase();
+                    if (title.includes(searchTerm) || parkName.includes(searchTerm)) {
+                        webcam.style.display = '';
+                        hasVisibleWebcam = true;
+                    } else {
+                        webcam.style.display = 'none';
+                    }
+                });
+                park.style.display = hasVisibleWebcam ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
