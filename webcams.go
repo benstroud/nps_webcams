@@ -180,7 +180,7 @@ func GroupWebcamsByPark() map[string][]WebcamData {
 	groupedWebcams := make(map[string][]WebcamData)
 	for _, webcam := range allWebcams {
 		for _, park := range webcam.RelatedParks {
-			groupedWebcams[park.FullName] = append(groupedWebcams[park.FullName], webcam)
+			groupedWebcams[park.FullName+" - "+park.States] = append(groupedWebcams[park.FullName], webcam)
 		}
 	}
 	log.Printf("grouped entries: %d", len(groupedWebcams))

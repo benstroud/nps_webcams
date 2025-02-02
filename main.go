@@ -14,6 +14,7 @@ import (
 const UPDATE_DATA_INTERVAL = 30 * time.Minute
 
 var gatherDataTaskRunning bool
+var lastUpdated = time.Now()
 var mu sync.Mutex
 
 // Fetch all webcams data
@@ -22,7 +23,8 @@ func gatherData() {
 	if err := FetchAllWebcams(); err != nil {
 		log.Fatalf("Failed to fetch all webcams: %v", err)
 	}
-	log.Printf("Total webcams fetched: %d", len(allWebcams))
+	lastUpdated = time.Now()
+	log.Printf("Total webcams fetched: %d. Last updated: %v", len(allWebcams), lastUpdated)
 }
 
 // Background task to fetch data periodically
@@ -54,6 +56,12 @@ func startGatherDataBackgroundTask() {
 	}
 }
 
+func getLastUpdatedMinutes() int {
+	mu.Lock()
+	defer mu.Unlock()
+	return int(time.Since(lastUpdated).Minutes())
+}
+
 func main() {
 	go startGatherDataBackgroundTask()
 
@@ -68,7 +76,8 @@ func main() {
 		groupedWebcams := GroupWebcamsByPark()
 		log.Printf("Webcams grouped by park: %d parks", len(groupedWebcams))
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"groupedWebcams": groupedWebcams,
+			"groupedWebcams":     groupedWebcams,
+			"lastUpdatedMinutes": getLastUpdatedMinutes(),
 		})
 	})
 
