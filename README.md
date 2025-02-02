@@ -1,8 +1,8 @@
 # National Park Service Webcam Gallery
 
 This is a simple Go/Gin web app to display a gallery of the various National
-Park Service webcams as discovered through the NPS API. This was a recreational
-programming project done on a Friday evening to explore Gin a bit.
+Park Service webcams as discovered through the NPS API. This is a recreational
+programming project that I thought would be useful and fun to explore.
 
 I've hosted the application publicly using Railway:
 
@@ -29,6 +29,9 @@ Then visit <http://localhost:8080/> in your browser.
 ![Screenshot of web gallery](readme_assets/preview.png)
 
 ## Diagram
+
+The dataset is very small and currently stored in memory. The NPS API is used on
+app startup and then every 30 minutes to dynamically refresh the data.
 
 ![Sequence diagram](readme_assets/mermaid_diagram.png)
 

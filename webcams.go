@@ -13,6 +13,7 @@ import (
 
 const BASE_URL = "https://developer.nps.gov/api/v1/"
 
+// Structs for JSON data
 type Crop struct {
 	AspectRatio float64 `json:"aspectRatio"`
 	URL         string  `json:"url"`
@@ -62,12 +63,13 @@ type WebcamResponse struct {
 
 type WebcamDataSlice []WebcamData
 
+// Implement sort.Interface for WebcamDataSlice
 func (w WebcamDataSlice) Len() int {
 	return len(w)
 }
 
 func (w WebcamDataSlice) Less(i, j int) bool {
-	return w[i].Title < w[j].Title // Example: sort by title
+	return w[i].Title < w[j].Title // Sort by title
 }
 
 func (w WebcamDataSlice) Swap(i, j int) {
@@ -79,6 +81,7 @@ var (
 	mutex      sync.Mutex
 )
 
+// Get API key from environment variable
 func GetApiKey() string {
 	key := os.Getenv("NPS_API_KEY")
 	if key == "" {
@@ -87,6 +90,7 @@ func GetApiKey() string {
 	return key
 }
 
+// Fetch all webcams data from the API
 func FetchAllWebcams() error {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -116,11 +120,12 @@ func FetchAllWebcams() error {
 		start += limit
 	}
 
-	sort.Sort(allWebcams) // Sort the webcams by title (or any other criteria)
+	sort.Sort(allWebcams) // Sort the webcams by title
 	log.Printf("Total webcams stored: %d", len(allWebcams))
 	return nil
 }
 
+// Get webcams data from the API with pagination
 func GetWebcams(limit, start int) (WebcamResponse, error) {
 	url := fmt.Sprintf("%swebcams?limit=%d&start=%d", BASE_URL, limit, start)
 	log.Printf("Fetching data from the API. Url: %s", url)
@@ -155,6 +160,7 @@ func GetWebcams(limit, start int) (WebcamResponse, error) {
 	return webcams, nil
 }
 
+// Get webcams data from memory with pagination
 func GetWebcamsFromMemory(limit, start int) []WebcamData {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -166,6 +172,7 @@ func GetWebcamsFromMemory(limit, start int) []WebcamData {
 	return allWebcams[start:end]
 }
 
+// Group webcams by park
 func GroupWebcamsByPark() map[string][]WebcamData {
 	mutex.Lock()
 	defer mutex.Unlock()
